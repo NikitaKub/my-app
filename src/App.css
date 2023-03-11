@@ -1,21 +1,20 @@
-.App {
-  text-align: center;
-  background-color:#CCCC00;
-}
-
 .body {
-  height: calc(100vh - 140px);
-}
-
-.wrapper {
-  height: calc(100% - 56px)
+  background-color:#CCCC00;
 }
 
 .menu {
   background-color: #FFFF00;
 }
 
-footer, header{
+.footer, .header{
   background-color: black;
   color: aliceblue;
+}
+
+.colorMidleInput {
+  background-color:#ffea9f;
+}
+
+.colorCard {
+  background-color: #e7e748;
 }

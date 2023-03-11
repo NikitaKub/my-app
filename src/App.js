@@ -13,21 +13,25 @@ class App extends React.Component{
         {
           id: 1,
           name: "tomato",
+          information: "Tomato from England",
           category: [0,1]
         },
         {
           id: 2,
           name: "cucumber",
+          information: "So green and tasty!",
           category: [0,1]
         },
         {
           id: 3,
           name: "potato",
+          information: "Special potatoes for you!",
           category: [0,0]
         },
         {
           id: 4,
           name: "corn",
+          information: "Who wants popcorn?",
           category: [0,2]
         }
       ],
@@ -39,7 +43,7 @@ class App extends React.Component{
   }
   render(){
       return(
-        <div class='App container-fluid d-flex flex-column text-center wrapper'>
+        <div class='App text-center'>
           <Header />
           <Menu categoryChange={this.categoryChange} />
           <Body list={this.state.list} currentCategory={this.state.currentCategory} />

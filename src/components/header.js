@@ -4,7 +4,7 @@ class Header extends React.Component{
         return(
             <header>
                 <section id="header">
-                    <div class="container-fluid header">
+                    <div class="container-xl header">
                         <div class="row">
                             <div class='col-12'>
                                 Header

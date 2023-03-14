@@ -1,131 +1,131 @@
 import React from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 
-class TimeTick extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {date: new Date()};
-    }
-  
-    componentDidMount(){
-        this.timer = setInterval(()=>this.tick(),1000);
-    
-    }
-    componentWillUnmount(){
-        clearInterval(this.timer);
-    }
-  
-    tick(){
-        this.setState({date: new Date()});
-    }
-  
-    render(){
-        return(
-            <div className='Time'>
-                <h1> Time: {this.state.date.toTimeString()}. </h1>
-            </div>
-        );
-    }
-}
 
-class ConverterCost extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            moneyUan: '',
-            moneyDollar: ''
+// Тут був клас з оновленням життєвого циклу, доречно використати як, useEffect так і useLayoutEffect, бо ніяких візуальних проблем не повинно бути
+function TimeTick(props){
+    const [date, setDate] = useState(new Date());
+
+    useLayoutEffect(()=>{
+        const tick = () => {
+            setDate(new Date());
         }
+
+        setInterval(() => tick(),1000)
+    });
+    
+    return(
+        <div class="col-12">
+            <h1> Time: {date.toTimeString()}. </h1>
+        </div>
+    );
+}
+
+function ConverterCost(props){
+    const [moneyUan, setMoneyUan] = useState("");
+    const [moneyDollar, setMoneyDollar] = useState("");
+
+    const tryConvert = (money, convert) => {
+        const input = parseFloat(money);
+        if(Number.isNaN(input)){
+            return '';
+        }
+        const output = convert(input);
+        const rounded = Math.round(output * 1000) / 1000;
+        return rounded.toString();
     }
 
-    handleUanChange = (e) => {
-        this.setState({moneyUan: e.target.value});
-        this.setState({moneyDollar: tryConvert(e.target.value, toDollar)});
+    const toUan = (dollar) => {
+        return dollar * 36.5686;
     }
 
-    handleDollarChange = (e) => {
-        this.setState({moneyDollar: e.target.value});
-        this.setState({moneyUan: tryConvert(e.target.value, toUan)});
+    const toDollar = (uan) => {
+        return uan / 36.5686;
+    }
+
+    const handleUanChange = (e) => {
+        setMoneyUan(e.target.value);
+        setMoneyDollar(tryConvert(e.target.value, toDollar));
+    }
+
+    const handleDollarChange = (e) => {
+        setMoneyDollar(e.target.value);
+        setMoneyUan(tryConvert(e.target.value, toUan));
     }
     
-    render(){
-        return(
-            <div class="offset-9 col-3">
-                <div class="input-group input-group-sm text-end">
-                    <input type="text" aria-label="First name" value={this.state.moneyUan} onChange={this.handleUanChange} class="form-control bg-warning-subtle"/>
-                    <span class="input-group-text colorMidleInput">₴</span>
-                    <input type="text" aria-label="Last name" value={this.state.moneyDollar} onChange={this.handleDollarChange} class="form-control bg-warning-subtle"/>
-                    <span class="input-group-text colorMidleInput">$</span>
-                </div>
+    return(
+        <div class="offset-6 col-4 mt-2">
+            <div class="input-group input-group-sm text-end">
+                <input type="text" aria-label="First name" value={moneyUan} onChange={handleUanChange} class="form-control bg-warning-subtle"/>
+                <span class="input-group-text colorMidleInput">₴</span>
+                <input type="text" aria-label="Last name" value={moneyDollar} onChange={handleDollarChange} class="form-control bg-warning-subtle"/>
+                <span class="input-group-text colorMidleInput">$</span>
             </div>
-        );
-    }
+        </div>
+    );
 }
 
-function tryConvert(money, convert){
-    const input = parseFloat(money);
-    if(Number.isNaN(input)){
-        return '';
-    }
-    const output = convert(input);
-    const rounded = Math.round(output * 1000) / 1000;
-    return rounded.toString();
-}
-
-function toUan(dollar){
-    return dollar * 36.5686;
-}
-
-function toDollar(uan){
-    return uan / 36.5686;
-}
-
-class ProductsList extends React.Component{
-    constructor(){
-        super();
-        this.state = {
-            comment: ""
-        }
-    }
-    logAlertComment = (event) => {
-        if(this.state.comment !== ""){
+function ProductsList(props){
+    const [comment, setComment] = useState("");
+    const logAlertComment = (event) => {
+        if(comment !== ""){
             alert("Thanks for your comment");
-            console.log(this.state.comment);
+            console.log(comment);
         }
         else{
             alert("Please write your comment before submitting it");
         }
         event.preventDefault();
     }
-    render(){
-        return(
-            <div class='col-12'>
-                {
-                    this.props.list.map((element) => (
-                        <div class="offset-3 col-6 card colorCard text-start me-auto">
-                            <div class="card-body">
-                                <div class="input-group mb-3 center" key={element.id}>
-                                    <div class="input-group-text bg-warning-subtle">
-                                        <input class="form-check-input mt-0" type="checkbox" value="" onChange={(e) => (this.props.handleChangeCounterTaken(e.target.checked))} aria-label="Checkbox for following text input"/>
-                                    </div>
-                                    <input type="text" class="form-control bg-warning-subtle" value={element.name} disabled aria-label="Text input with checkbox"/>
+    return(
+        <div class='col-12'>
+            {
+                props.list.map((element) => (
+                    <div class="offset-3 col-6 card colorCard text-start me-auto">
+                        <div class="card-body">
+                            <div class="input-group mb-3 center" key={element.id}>
+                                <div class="input-group-text bg-warning-subtle">
+                                    <input class="form-check-input mt-0" type="checkbox" value="" onChange={(e) => (props.handleChangeCounterTaken(e.target.checked))} aria-label="Checkbox for following text input"/>
                                 </div>
-                                <h6 class="card-title">Description</h6>
-                                <p class="card-text">{element.information}</p>
-                                <form onSubmit={this.logAlertComment}>
-                                    <div class="form-floating">
-                                        <textarea class="form-control bg-warning-subtle" placeholder="Leave a comment here" id="floatingTextarea" onChange={(e) => this.setState({comment: e.target.value})}></textarea>
-                                        <label for="floatingTextarea">Comments</label>
-                                        <button type="submit" class="btn btn-dark mt-1" >Send</button>
-                                    </div>
-                                </form>
-                                <ConverterCost/>
+                                <input type="text" class="form-control bg-warning-subtle" value={element.name} disabled aria-label="Text input with checkbox"/>
                             </div>
+                            <h6 class="card-title">Description</h6>
+                            <p class="card-text">{element.information}</p>
+                            <form onSubmit={logAlertComment}>
+                                <div class="form-floating">
+                                    <textarea class="form-control bg-warning-subtle" placeholder="Leave a comment here" id="floatingTextarea" onChange={(e) => setComment(e.target.value)}></textarea>
+                                    <label for="floatingTextarea">Comments</label>
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <button type="submit" class="btn btn-dark mt-1" >Send</button>
+                                        </div>
+                                        <ConverterCost/>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    ))
-                }
-            </div>
-        );
-    }
-}              
+                    </div>
+                ))
+            }
+        </div>
+    );
+}
+
+function ProductsHave(props){
+    return(
+        <div class='offset-3 col-2 text-start'>
+            <span>Products have {props.count}</span>
+        </div>
+    );
+}
+
+function ProductsTaken(props){
+    return(
+        <div class='offset-2 col-2 me-auto text-end'>
+            <span>Products taken {props.counterProdTaken}</span>
+        </div>
+    );
+}
 
 class Body extends React.Component{
     constructor(props){
@@ -151,21 +151,15 @@ class Body extends React.Component{
         
         return(
             <section id="body">
-                <div class="container-fluid body">
+                <div class="container-xl body">
                     <div class='row'>
                         <div class='col-12'>
                             <span>Body</span>
                         </div>
-                        <div class='offset-3 col-2 text-start'>
-                            <span>Products have {list.length}</span>
-                        </div>
-                        <div class='offset-2 col-2 me-auto text-end'>
-                            <span>Products taken {this.state.counterProdTaken}</span>
-                        </div>
+                        <ProductsHave count={list.length} />
+                        <ProductsTaken counterProdTaken={this.state.counterProdTaken} />
                         <ProductsList list={list} handleChangeCounterTaken={this.handleChangeCounterTaken} />
-                        <div class='col-12'>
-                            <TimeTick />
-                        </div>
+                        <TimeTick />
                     </div>
                 </div>
             </section>

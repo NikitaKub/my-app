@@ -21,7 +21,7 @@ class Menu extends React.Component{
         }
         return(
             <section id="menu">
-                <div class="container-fluid menu">
+                <div class="container-xl menu">
                     <div class='row menu'>
                         <div class='col-12'>
                             Menu

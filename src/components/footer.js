@@ -4,7 +4,7 @@ class Footer extends React.Component{
         return(
             <footer>
                 <section id="footer">
-                    <div class="container-fluid footer">
+                    <div class="container-xl footer">
                         <div class="row">
                             <div class='col-12'>
                                 Footer

@@ -12,7 +12,7 @@ function TimeTick(props){
         }
 
         setInterval(() => tick(),1000)
-    });
+    }, [date]);
     
     return(
         <div class="col-12">

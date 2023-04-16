@@ -1,6 +1,15 @@
 import React from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { useMatch, useParams } from 'react-router-dom';
+import { CheckContext, ProvisionContext } from '../App';
+import { BrowserRouter, Route, Routes, Link, Outlet } from 'react-router-dom';
 
+
+function NeedsCheckers(props){
+    return(
+        <h1>{props.check == true ? 1 : props.provision}</h1>
+    )
+}
 
 // Тут був клас з оновленням життєвого циклу, доречно використати як, useEffect так і useLayoutEffect, бо ніяких візуальних проблем не повинно бути
 function TimeTick(props){
@@ -17,6 +26,15 @@ function TimeTick(props){
     return(
         <div class="col-12">
             <h1> Time: {date.toTimeString()}. </h1>
+            <CheckContext>
+                {check => (
+                    <ProvisionContext>
+                        {provision => (
+                            <NeedsCheckers check={check} provision={provision}/>
+                        )}
+                    </ProvisionContext>
+                )}
+            </CheckContext>
         </div>
     );
 }
@@ -77,13 +95,15 @@ function ProductsList(props){
         }
         event.preventDefault();
     }
+    
     return(
         <div class='col-12'>
             {
                 props.list.map((element) => (
-                    <div class="offset-3 col-6 card colorCard text-start me-auto">
+                    <div class="offset-3 col-6 card colorCard text-start me-auto" key={element.id}>
                         <div class="card-body">
-                            <div class="input-group mb-3 center" key={element.id}>
+                            <h1><Link class="link-dark" to={`${element.id}`}>{element.name}</Link></h1>
+                            <div class="input-group mb-3 center">
                                 <div class="input-group-text bg-warning-subtle">
                                     <input class="form-check-input mt-0" type="checkbox" value="" onChange={(e) => (props.handleChangeCounterTaken(e.target.checked))} aria-label="Checkbox for following text input"/>
                                 </div>
@@ -127,45 +147,100 @@ function ProductsTaken(props){
     );
 }
 
-class Body extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            counterProdTaken: 0,
-            counterProdHave: 0
-        };
+function ProductsAll(props){
+    const {id} = useParams();
+    return (
+        <div class="col-12">
+            <div class="row">
+                <ProductsHave count={props.count} />     
+                <ProductsTaken counterProdTaken={props.counterProdTaken} />
+            </div>
+            <ProductsList list={props.list} handleChangeCounterTaken={props.handleChangeCounterTaken} />
+        </div>
+    )
+}
+function ProductsGetOne(props){
+    const {id} = useParams();
+    const filterListGetById = (value, idValue) => {
+        return value.filter(({id}) => id == idValue);
     }
-    handleChangeCounterTaken = (value) => {
+    return (
+        <div class="col-12">
+            <div class="row">
+                <ProductsHave count={props.count.length} />     
+                <ProductsTaken counterProdTaken={props.counterProdTaken} />
+            </div>
+            <ProductsList list={filterListGetById(props.list, id)} handleChangeCounterTaken={props.handleChangeCounterTaken} />
+        </div>
+    )
+}
+
+function Body(props){
+    const [counterProdTaken, setCounterProdTaken] = useState(0);
+    let list = [
+        {
+          id: 1,
+          name: "tomato",
+          information: "Tomato from England",
+          category: [0,1]
+        },
+        {
+          id: 2,
+          name: "cucumber",
+          information: "So green and tasty!",
+          category: [0,1]
+        },
+        {
+          id: 3,
+          name: "potato",
+          information: "Special potatoes for you!",
+          category: [0,0]
+        },
+        {
+          id: 4,
+          name: "corn",
+          information: "Who wants popcorn?",
+          category: [0,2]
+        }
+    ];
+
+    const filterList = (value, currentCategory) => {
+        return value.filter(({category}) => category[0] == currentCategory || category[1] == currentCategory);
+    }
+
+    const handleChangeCounterTaken = (value) => {
         if(value===true){
-            this.setState({counterProdTaken: (this.state.counterProdTaken + 1)});
+            setCounterProdTaken(counterProdTaken + 1);
         }
         else{
-            this.setState({counterProdTaken: (this.state.counterProdTaken - 1)});
+            setCounterProdTaken(counterProdTaken - 1);
         }
     }
-    handleChangeCounterHave = (value) => {
-        this.setState({counterProdHave: value});
-    }
-    render(){
-        let list = this.props.list.filter(({category}) => category[0] == this.props.currentCategory || category[1] == this.props.currentCategory);
-        
-        return(
-            <section id="body">
-                <div class="container-xl body">
-                    <div class='row'>
-                        <div class='col-12'>
-                            <span>Body</span>
-                        </div>
-                        <ProductsHave count={list.length} />
-                        <ProductsTaken counterProdTaken={this.state.counterProdTaken} />
-                        <ProductsList list={list} handleChangeCounterTaken={this.handleChangeCounterTaken} />
-                        <TimeTick />
+    return(
+        <section id="body">
+            <div class="container-xl body">
+                <div class='row'>
+                    <div class='col-12'>
+                        <span>Body</span>
                     </div>
+                    <Routes>
+                        <Route path='/' element={
+                        <ProductsAll
+                            count={filterList(list, props.currentCategory).length}
+                            counterProdTaken={counterProdTaken}
+                            list={filterList(list, props.currentCategory)} handleChangeCounterTaken={handleChangeCounterTaken}
+                        />}></Route>
+                        <Route path=':id' element={<ProductsGetOne
+                        count={filterList(list, props.currentCategory)}
+                        counterProdTaken={counterProdTaken}
+                        list={filterList(list, props.currentCategory)} handleChangeCounterTaken={handleChangeCounterTaken}
+                        />}></Route>
+                    </Routes>
+                    <TimeTick />
                 </div>
-            </section>
-            
-        );
-    }
+            </div>
+        </section>
+    );
 }
 
 export default Body 

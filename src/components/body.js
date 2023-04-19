@@ -1,8 +1,13 @@
 import React from 'react';
-import { useState, useEffect, useLayoutEffect } from 'react';
-import { useMatch, useParams } from 'react-router-dom';
+import { useState, useLayoutEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { CheckContext, ProvisionContext } from '../App';
-import { BrowserRouter, Route, Routes, Link, Outlet } from 'react-router-dom';
+import { Route, Routes, Link, Outlet } from 'react-router-dom';
+import styles from '../cardStyle.module.css';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import uuid from 'react-uuid';
+import { createRef } from 'react';
+import styled from 'styled-components';
 
 
 function NeedsCheckers(props){
@@ -75,9 +80,9 @@ function ConverterCost(props){
         <div class="offset-6 col-4 mt-2">
             <div class="input-group input-group-sm text-end">
                 <input type="text" aria-label="First name" value={moneyUan} onChange={handleUanChange} class="form-control bg-warning-subtle"/>
-                <span class="input-group-text colorMidleInput">₴</span>
+                <span class={`input-group-text ${styles.colorMidleInput}`}>₴</span>
                 <input type="text" aria-label="Last name" value={moneyDollar} onChange={handleDollarChange} class="form-control bg-warning-subtle"/>
-                <span class="input-group-text colorMidleInput">$</span>
+                <span class={`input-group-text ${styles.colorMidleInput}`}>$</span>
             </div>
         </div>
     );
@@ -100,7 +105,7 @@ function ProductsList(props){
         <div class='col-12'>
             {
                 props.list.map((element) => (
-                    <div class="offset-3 col-6 card colorCard text-start me-auto" key={element.id}>
+                    <div class={`offset-3 col-6 card ${styles.colorCard} text-start me-auto`} key={element.id}>
                         <div class="card-body">
                             <h1><Link class="link-dark" to={`${element.id}`}>{element.name}</Link></h1>
                             <div class="input-group mb-3 center">
@@ -175,6 +180,107 @@ function ProductsGetOne(props){
     )
 }
 
+function Diaries(props){
+    const [items, setItems] = useState(() => [
+        {
+          id: uuid(),
+          text: 'Buy tomatoes',
+          nodeRef: createRef(null),
+        },
+        {
+          id: uuid(),
+          text: 'Verify all prizes',
+          nodeRef: createRef(null),
+        },
+        {
+          id: uuid(),
+          text: 'Invite friends over to the site',
+          nodeRef: createRef(null),
+        },
+    ]);
+    return(
+        <div class="offset-4 col-4 me-auto">
+            <ul class="list-group">
+                <TransitionGroup className="diaries">
+                {items.map(({ id, text, nodeRef }) => (
+                    <CSSTransition
+                    key={id}
+                    nodeRef={nodeRef}
+                    timeout={500}
+                    classNames="item"
+                    >
+                    <li ref={nodeRef} class="list-group-item text-bg-dark p-3">
+                        <button className="remove-btn btn btn-danger"
+                        variant="danger"
+                        size="sm"
+                        onClick={() =>
+                            setItems((items) =>
+                            items.filter((item) => item.id !== id)
+                            )
+                        }>&times;</button>
+                        {text}
+                        </li>
+                    </CSSTransition>
+                ))}
+                </TransitionGroup>
+            </ul>
+            <button
+                class="btn btn-success mb-1 mt-1"
+                onClick={() => {
+                const text = prompt('Enter some text');
+                if (text) {
+                    setItems((items) => [
+                    ...items,
+                    {
+                        id: uuid(),
+                        text,
+                        nodeRef: createRef(null),
+                    },
+                    ]);
+                }
+                }}
+            >
+                Add Diary
+            </button>
+            <StyledDiv>
+                <Button> CLick me</Button>
+                <CoolButton inverted>CLick me</CoolButton>
+            </StyledDiv>
+        </div>
+    )
+}
+
+const Button = styled.button`
+background: ${props => props.inverted ? "limegreen" : "white"};
+color: ${props => props.inverted ? "white" : "limegreen"};
+border: 2px solid limegreen;
+margin-left: 1em;
+border-radius: 3px;
+
+&:hover {
+  opacity: 0.9;
+}
+`;
+
+const CoolButton = styled(Button)`
+&:hover {
+    background-color: white;
+    color: limegreen;
+  }
+`;
+
+const Div = ({ className, children }) => (
+    <div className={className}>
+        {children}
+    </div>
+)
+
+const StyledDiv = styled(Div)`
+    background: limegreen;
+    border: 2px solid limegreen;
+    border-radius: 3px;
+    `;
+
 function Body(props){
     const [counterProdTaken, setCounterProdTaken] = useState(0);
     let list = [
@@ -237,6 +343,7 @@ function Body(props){
                         />}></Route>
                     </Routes>
                     <TimeTick />
+                    <Diaries />
                 </div>
             </div>
         </section>
